@@ -29,7 +29,13 @@ const styles = theme => ({
 class MoviePage extends React.Component {
   componentDidMount() {
     const { moviesStore } = this.props;
-    moviesStore.getMoviesAndCategories();
+
+    try {
+      console.log("invoked");
+      moviesStore.getMoviesAndCategories();
+    } catch (err) {
+      console.log(err);
+    }
   }
   render() {
     const { moviesStore, classes } = this.props;

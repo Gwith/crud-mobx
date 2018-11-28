@@ -1,14 +1,8 @@
 import { observable, action, configure } from "mobx";
 import db from "../config/fbConfig";
+import { docToMovie } from "../utils/helper";
 
-// configure({ enforceActions: "observed" });
-
-function docToMovie(doc) {
-  return {
-    ...doc.data(),
-    id: doc.id
-  };
-}
+//configure({ enforceActions: "observed" });
 
 export default class MoviesStore {
   @observable movies = null;
@@ -16,53 +10,48 @@ export default class MoviesStore {
   @observable selectedMovie = null;
   @observable fetchingMoviesAndCategories = true;
 
-  @action
-  changeFetchingMoviesAndCategories = bool => {
-    this.fetchingMoviesAndCategories = bool;
-  };
-
-  @action.bound async getMoviesAndCategories() {
-    this.changeFetchingMoviesAndCategories(true);
+  @action async getMoviesAndCategories() {
+    this.fetchingMoviesAndCategories = true;
 
     try {
-      const [movies, categories] = await Promise.all([
-        this.getMovies(),
-        this.getCategories()
-      ]);
-      this.movies = movies;
-      this.categories = categories;
+      console.log("fetching");
+      this.movies = await this.getMovies();
+      this.categories = await this.getCategories();
     } catch (error) {
       console.error(error);
-    } finally {
-      this.changeFetchingMoviesAndCategories(false);
     }
+    console.log("finished");
+    this.fetchingMoviesAndCategories = false;
   }
-  @action.bound deleteMovie = async id => {
+  @action.bound async deleteMovie(id) {
     await db
       .collection("movies")
       .doc(id)
       .delete();
     this.movies = await this.getMovies();
-  };
-  @action.bound getMovies = async () => {
+  }
+
+  async getMovies() {
     const querySnapShot = await db.collection("movies").get();
     return querySnapShot.docs.map(doc => docToMovie(doc));
-  };
-  @action.bound editMovie = async (id, title, category) => {
+  }
+
+  @action.bound async editMovie(id, title, category) {
     await db
       .collection("movies")
       .doc(id)
       .update({ title, category });
     this.movies = await this.getMovies();
-  };
-  @action.bound getCategories = async () => {
+  }
+
+  @action.bound async getCategories() {
     const querySnapShot = await db.collection("categories").get();
     return querySnapShot.docs.map(doc => doc.data()[0]);
-  };
-  @action.bound addMovie = async (title, category) => {
+  }
+  @action.bound async addMovie(title, category) {
     await db.collection("movies").add({ title, category });
     this.movies = await this.getMovies();
-  };
+  }
   @action.bound getSelectedMovie(title) {
     this.selectedMovie = this.movies.filter(movie => title === movie.title);
   }

@@ -16,6 +16,7 @@ function MovieList({
   handleClickDelete,
   handleClickEdit
 }) {
+  console.log({ movies, categories });
   return (
     <React.Fragment>
       {categories.map(category => (
@@ -24,31 +25,27 @@ function MovieList({
             {category}
           </Typography>
           <List>
-            {movies.map(movie => {
-              if (movie.category === category) {
-                return (
-                  <ListItem
-                    key={movie.id}
-                    button
-                    onClick={() => handleClickSelect(movie.title)}
-                  >
-                    <ListItemText>{movie.title}</ListItemText>
-                    <MovieForm
-                      handleClickEdit={handleClickEdit}
-                      editMode={true}
-                      id={movie.id}
-                      title={movie.title}
-                      category={movie.category}
-                    />
-                    <IconButton>
-                      <DeleteIcon
-                        onClick={e => handleClickDelete(e, movie.id)}
-                      />
-                    </IconButton>
-                  </ListItem>
-                );
-              }
-            })}
+            {movies
+              .filter(movie => category === movie.category)
+              .map(movie => (
+                <ListItem
+                  key={movie.id}
+                  button
+                  onClick={() => handleClickSelect(movie.title)}
+                >
+                  <ListItemText>{movie.title}</ListItemText>
+                  <MovieForm
+                    handleClickEdit={handleClickEdit}
+                    editMode={true}
+                    id={movie.id}
+                    title={movie.title}
+                    category={movie.category}
+                  />
+                  <IconButton>
+                    <DeleteIcon onClick={e => handleClickDelete(e, movie.id)} />
+                  </IconButton>
+                </ListItem>
+              ))}
           </List>
         </React.Fragment>
       ))}

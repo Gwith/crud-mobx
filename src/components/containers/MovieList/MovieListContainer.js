@@ -17,14 +17,6 @@ class MovieListContainer extends Component {
     title: "",
     category: ""
   };
-  async componentDidMount() {
-    try {
-      await this.props.moviesStore.getMovies();
-      await this.props.moviesStore.getCategories();
-    } catch (error) {
-      console.log(error);
-    }
-  }
   handleClickSelect = title => {
     this.props.moviesStore.getSelectedMovie(title);
   };
